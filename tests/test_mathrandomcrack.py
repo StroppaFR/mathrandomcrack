@@ -34,3 +34,4 @@ class TestMathRandomCrack(unittest.TestCase):
                 break
         self.assertTrue(found_correct_state)
 
+#TODO test non successive outputs of Math.random()

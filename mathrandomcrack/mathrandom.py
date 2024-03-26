@@ -87,6 +87,8 @@ class MathRandom():
         self.cache_idx -= 1
         return val
 
+    #TODO add previous() and previousRefill() mechanism to get previous random values
+
     def recover_from_previous_state(self, prev_state0, prev_state1, cache_idx):
         """
         Recover a MathRandom internal state using the values of state0 and state1 before the previous refill.
