@@ -93,6 +93,7 @@ def recover_seed_from_known_bits(known_states_bits):
     
     Return a generator that yields all possible initial 128-bit states of xs128 as a (state0, state1) tuple.
     """
+    assert all(len(state) == 64 for state in known_states_bits)
     # Initial state before the xs128 call
     # Initial s0 is the low 64 bits of the initial state
     # Initial s1 is the high 64 bits of the initial state

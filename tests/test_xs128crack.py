@@ -5,21 +5,27 @@ import random
 class TestXS128Crack(unittest.TestCase):
 
     def test_recover_seed_from_known_bits(self):
+        # Pick a random seed
         seed0, seed1 = random.randint(0, 2**64), random.randint(0, 2**64)
         state0, state1 = seed0, seed1
 
-        # Generate a few random integers using xs128
+        # Generate random integers using xs128
         random_integers = []
-        for i in range(7):
+        for i in range(8):
             state0, state1 = xs128(state0, state1)
             random_integers.append(state0)
 
-        # Only keep some bits from each integer
+        # Only keep a few bits of some integers
         known_states_bits = []
-        for i in random_integers:
-            state = []
-            for j in range(18):
-                state.append((i >> j) & 1)
+        for i, n in enumerate(random_integers):
+            if i == 3:
+                # Skip unknown integer
+                state = [None for _ in range(64)]
+            else:
+                # Keep only 18 bits
+                state = [None for _ in range(20)] # Unknown LSBs
+                state.extend([(n >> j) & 1 for j in range(20, 38)]) # Known bits
+                state.extend([None for _ in range(38, 64)]) # Unknown MSBs
             known_states_bits.append(state)
 
         # Try to recover the right seed
