@@ -1,6 +1,7 @@
-from mathrandomcrack.xs128crack import *
 import unittest
 import random
+
+from mathrandomcrack.xs128crack import *
 
 class TestXS128Crack(unittest.TestCase):
 
