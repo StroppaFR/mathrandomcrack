@@ -30,7 +30,9 @@ You should have Python3 and [Sage](https://doc.sagemath.org/html/en/installation
 
 ## I have a more complex use case
 
-If you manage to extract some bits of multiple `Math.random()` outputs, you can directly use the `recover_state_from_math_random_known_bits` function in `mathrandomcrack.py` to recover the initial internal state of `Math.random()`.
+If you manage to leak enough bits (> 140) from multiple `Math.random()` outputs, you can directly use the `recover_state_from_math_random_known_bits` function in `mathrandomcrack.py` to recover the initial internal state of `Math.random()`.
+
+You can also try to use `recover_seed_from_known_bits` in `xs128crack.py` if you just want the XorShift128 state and don't care about `Math.random()` stuff.
 
 ## How does it work?
 
