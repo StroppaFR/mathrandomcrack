@@ -59,22 +59,7 @@ class MathRandom():
         self.state1 = state1
         self.cache_idx = -1
         self.cache = []
-        self.refill()
-
-    def refill(self):
-        """
-        Refill the Math.random cache using xs128.
-        Can only be used when Math.random cache is empty.
-
-        A new 64-long list of random values is stored in cache.
-        The cache_idx is set to the last index of the cache (63).
-        """
-        assert self.cache_idx == -1
-        self.cache = []
-        for _ in range(MATH_RANDOM_CACHE_SIZE):
-            self.state0, self.state1 = xs128(self.state0, self.state1)
-            self.cache.append(self.state0)
-        self.cache_idx = MATH_RANDOM_CACHE_SIZE - 1
+        self._refill()
 
     def next(self):
         """
@@ -82,12 +67,21 @@ class MathRandom():
         Decrement cache_idx and refill the cache if needed.
         """
         if self.cache_idx < 0:
-            self.refill()
+            self._refill()
         val = v8_to_double(self.cache[self.cache_idx])
         self.cache_idx -= 1
         return val
-
-    #TODO add previous() and previousRefill() mechanism to get previous random values
+    
+    def previous(self):
+        """
+        Output the result of the previous call to Math.random() (a double between 0.0 and 1.0).
+        Increment cache_idx and refill the cache backwards if needed.
+        """
+        self.cache_idx += 1
+        if self.cache_idx > 63:
+            self._refill_backwards()
+        val = v8_to_double(self.cache[self.cache_idx])
+        return val
 
     def recover_from_previous_state(self, prev_state0, prev_state1, cache_idx):
         """
@@ -103,8 +97,46 @@ class MathRandom():
         self.cache_idx = -1
         self.state0 = prev_state0
         self.state1 = prev_state1
-        self.refill()
+        self._refill()
         self.cache_idx = cache_idx
+
+    def _refill(self):
+        """
+        Refill the Math.random cache using xs128.
+        Can only be used when Math.random cache is empty.
+
+        A new 64-long list of random values is stored in cache.
+        The cache_idx is set to the last index of the cache (63).
+        """
+        assert self.cache_idx == -1
+        self.cache = []
+        for _ in range(MATH_RANDOM_CACHE_SIZE):
+            self.state0, self.state1 = xs128(self.state0, self.state1)
+            self.cache.append(self.state0)
+        self.cache_idx = MATH_RANDOM_CACHE_SIZE - 1
+
+    def _refill_backwards(self):
+        """
+        Refill the Math.random cache backwards using xs128.
+        Can only be used when Math.random cache is full.
+
+        A new 64-long list of random values is stored in cache.
+        The cache_idx is set to the first index of the cache (0).
+        """
+        assert self.cache_idx == 64
+        self.cache = []
+        # First loop generates values of the current cache
+        for _ in range(MATH_RANDOM_CACHE_SIZE):
+            self.state0, self.state1 = reverse_xs128(self.state0, self.state1)
+        saved_state0, saved_state1 = self.state0, self.state1
+        # Second loop fills the previous cache
+        for _ in range(MATH_RANDOM_CACHE_SIZE):
+            self.cache.append(self.state0)
+            self.state0, self.state1 = reverse_xs128(self.state0, self.state1)
+        self.state0, self.state1 = saved_state0, saved_state1
+        # Cache was generated backwards
+        self.cache = self.cache[::-1]
+        self.cache_idx = 0
     
     def __copy__(self):
         """
