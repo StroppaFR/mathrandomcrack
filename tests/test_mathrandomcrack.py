@@ -1,7 +1,10 @@
 import math
+import logging
 import unittest
 
 from mathrandomcrack.mathrandomcrack import *
+
+logging.basicConfig(level=logging.ERROR)
 
 class TestMathRandomCrack(unittest.TestCase):
 
