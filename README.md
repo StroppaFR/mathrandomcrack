@@ -26,11 +26,25 @@ Never use `Math.random()` for anything related to security. If someone recoverin
 
 You should have Python3 and [Sage](https://doc.sagemath.org/html/en/installation/index.html) installed.
 
-#TODO CLI coming soon, meanwhile you can check examples in the `tests/` folder.
+Example usages:
+
+```console
+$ # Generate the 10 next values from known consecutive outputs of Math.random()
+$ python3 -m mathrandomcrack --method doubles --next 10 ./samples/doubles.txt
+Found a possible Math.random internal state
+Predicted next 10 values: [0.5597931536361638, 0.39832831643974864, 0.0940979656897567, 0.3892245433709369, 0.4181995469805899, 0.8956732665570508, 0.48855506783775837, 0.2101572368259732, 0.08530537646511771, 0.29348914847700214]
+
+$ # Generate the 5 previous and 5 next integers from known consecutive values of Math.floor(Math.random() * 36)
+$ python3 -m mathrandomcrack --method scaled --next 5 --previous 5 --factor 36 --output-fmt scaled ./samples/scaled_values.txt
+Predicted previous 5 values: [21, 1, 22, 4, 5]
+Predicted next 5 values: [20, 29, 1, 22, 20]
+```
+
+The `samples` directory contains example files for various use cases. For more information about the CLI, you can run `python3 -m mathrandomcrack --help`.
 
 ## I have a more complex use case
 
-If you manage to leak enough bits (> 140) from multiple `Math.random()` outputs, you can directly use the `recover_state_from_math_random_known_bits` function in `mathrandomcrack.py` to recover the initial internal state of `Math.random()`.
+If you manage to leak enough bits (> 120) from multiple `Math.random()` outputs, you can directly use the `recover_state_from_math_random_known_bits` function in `mathrandomcrack.py` to recover the initial internal state of `Math.random()`.
 
 You can also try to use `recover_seed_from_known_bits` in `xs128crack.py` if you just want the XorShift128 state and don't care about `Math.random()` stuff.
 
