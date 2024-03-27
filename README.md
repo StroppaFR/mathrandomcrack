@@ -36,6 +36,7 @@ Predicted next 10 values: [0.5597931536361638, 0.39832831643974864, 0.0940979656
 
 $ # Generate the 5 previous and 5 next integers from known consecutive values of Math.floor(Math.random() * 36)
 $ python3 -m mathrandomcrack --method scaled --next 5 --previous 5 --factor 36 --output-fmt scaled ./samples/scaled_values.txt
+Found a possible Math.random internal state
 Predicted previous 5 values: [21, 1, 22, 4, 5]
 Predicted next 5 values: [20, 29, 1, 22, 20]
 ```
