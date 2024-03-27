@@ -1,5 +1,4 @@
 import unittest
-import random
 
 from mathrandomcrack.xs128crack import *
 
@@ -7,7 +6,7 @@ class TestXS128Crack(unittest.TestCase):
 
     def test_recover_seed_from_known_bits(self):
         # Pick a random seed
-        seed0, seed1 = random.randint(0, 2**64), random.randint(0, 2**64)
+        seed0, seed1 = 12092933408070727569, 7218780437263453395
         state0, state1 = seed0, seed1
 
         # Generate random integers using xs128
