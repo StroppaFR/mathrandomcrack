@@ -157,9 +157,3 @@ def common_bits_between(low, high):
         exp -= 1
     return common_bits[::-1]
 
-if __name__ == '__main__':
-    logging.basicConfig()
-    logger.setLevel(logging.DEBUG)
-
-    #TODO add a CLI
-
