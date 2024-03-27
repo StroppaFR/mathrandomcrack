@@ -5,6 +5,10 @@ from sage.all import Matrix, GF
 
 logger = logging.getLogger(__name__)
 
+# Should be a lot more than enough to get only one solution to any system (i think...)
+# Avoids the solver DOSing itself with too many equations
+MAX_EQUATIONS = 10000
+
 class StateBitDeps():
     """
     A class that represents a 64-bit state0 of xs128 relatively to an initial 128-bit state.
@@ -76,7 +80,11 @@ def solve_linear_system(equations):
     v0 = M.solve_right(b).transpose()[0]
     # Iterate over all solutions
     K = M.right_kernel()
-    logger.debug(f'Found {len(K)} valid seed(s)')
+    total_solutions = len(K)
+    if total_solutions > 100:
+        logger.warning(f'Found {len(K)} valid xs128 seed(s)')
+    else:
+        logger.debug(f'Found {len(K)} valid xs128 seed(s)')
     for v in K:
         yield sum(int(c) << i for i, c in enumerate(v0 + v))
 
@@ -101,13 +109,25 @@ def recover_seed_from_known_bits(known_states_bits):
     s1 = StateBitDeps([1 << i for i in range(HALF_STATE_SIZE, STATE_SIZE)])
     equations = []
     # Generate bit dependencies between all states
+    total_equations = 0
     for state_bits in known_states_bits:
         s0, s1 = xs128(s0, s1)
         # For each known bit, we generate a new equation
         for i, bit in enumerate(state_bits):
             if bit is not None:
+                total_equations += 1
                 coefficients = s0.to_coeff(i)
                 equations.append(StateEquation(coefficients, bit))
+        if total_equations > MAX_EQUATIONS:
+            total_equations = MAX_EQUATIONS
+            equations = equations[:MAX_EQUATIONS]
+            logger.debug(f'Total number of equations in linear system reduced to {MAX_EQUATIONS}')
+            break
+    logger.debug(f'Total number of equations in linear system: {total_equations}')
+    if total_equations < 110:
+        logger.error(f'Number of equations is too small and will generate too many possible seeds')
+    elif total_equations < 140:
+        logger.warning(f'Number of equations is small and will generate a lot of possible seeds')
     # Solve the linear system of equations to find all possible seeds
     seeds = solve_linear_system(equations)
     for seed in seeds:
