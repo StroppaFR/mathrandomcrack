@@ -41,7 +41,9 @@ Predicted previous 5 values: [21, 1, 22, 4, 5]
 Predicted next 5 values: [20, 29, 1, 22, 20]
 ```
 
-The `samples` directory contains example files for various use cases. For more information about the CLI, you can run `python3 -m mathrandomcrack --help`.
+The `samples` directory contains example files for various use cases. There should be one leaked value of `Math.random()` per line and it is possible to use an empty line to represent an unknown output of `Math.random()`.
+
+For more information about the CLI, you can run `python3 -m mathrandomcrack --help`.
 
 ## I have a more complex use case
 

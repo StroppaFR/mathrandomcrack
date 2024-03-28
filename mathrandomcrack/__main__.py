@@ -29,6 +29,8 @@ def parse_args():
             help='how many next Math.random() outputs to predict')
     parser.add_argument('--previous', default=0, type=int,
             help='how many previous Math.random() outputs to predict')
+    parser.add_argument('--show-leaks', action='store_true',
+            help='show the recovered leaked values corresponding to the input file')
     parser.add_argument('--output-fmt', default='doubles', choices=['doubles', 'scaled'],
             help='the format of the predicted values\n'\
                  '"doubles" (default): a list of doubles\n'\
@@ -45,35 +47,45 @@ def parse_args():
     return args
 
 def parse_file(filename, method):
-    data = []
+    leaks = []
+    indices = []
+    curr_index = 0
     with open(filename, 'r') as f:
         for line in f:
-            if not line.strip() or line.startswith("#"):
+            if line.startswith("#"):
+                # Skip commented lines
                 continue
-            if method == 'doubles':
+            if not line.strip():
+                # Empty line means unknown state
+                pass
+            elif method == 'doubles':
                 d = ast.literal_eval(line)
                 assert type(d) in [int, float] and d >= 0.0 and d <= 1.0
-                data.append(d)
+                leaks.append(d)
+                indices.append(curr_index)
             elif method == 'scaled':
                 i = ast.literal_eval(line)
                 assert type(i) is int and i >= 0 and i <= pow(2, 64) - 1
-                data.append(i)
+                leaks.append(i)
+                indices.append(curr_index)
             elif method == 'bounds':
                 splitted = line.split(' ')
                 bounds = [ast.literal_eval(s) for s in splitted]
                 assert len(bounds) == 2 and all(type(b) in [int, float] and b >= 0 and b <= 1.0 for b in bounds)
-                data.append(bounds)
+                leaks.append(bounds)
+                indices.append(curr_index)
             else:
                 raise NotImplementedError(f'Unsupported method "{method}"')
-    return data
+            curr_index += 1
+    return leaks, indices
 
-def recover_all_states(data, args):
+def recover_all_states(leaks, indices, args):
     if args.method == 'doubles':
-        return recover_state_from_math_random_doubles(data)
+        return recover_state_from_math_random_doubles(leaks, indices)
     elif args.method == 'scaled':
-        return recover_state_from_math_random_scaled_values(data, args.factor, args.translation)
+        return recover_state_from_math_random_scaled_values(leaks, args.factor, args.translation, indices)
     elif args.method == 'bounds':
-        return recover_state_from_math_random_approximate_values(data)
+        return recover_state_from_math_random_approximate_values(leaks, indices)
     else:
         raise NotImplementedError(f'Unsupported method "{method}"')
 
@@ -88,18 +100,25 @@ def format_random(value, args):
 if __name__ == '__main__':
     args = parse_args()
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG if args.debug else logging.INFO)
-    data = parse_file(args.file, args.method)
+    leaks, indices = parse_file(args.file, args.method)
 
     found = False
-    for state in recover_all_states(data, args):
+    for state in recover_all_states(leaks, indices, args):
         found = True
         print('Found a possible Math.random internal state')
+        # Show --previous values
         if args.previous > 0:
             print(f'Predicted previous {args.previous} values:',
                     [format_random(state.previous(), args) for _ in range(args.previous)][::-1])
             [state.next() for _ in range(args.previous)] # Return to initial state
+        # Show leaked values if --show-leaks
+        if args.show_leaks:
+            print(f'Recovered leaked values:',
+                    [format_random(state.next(), args) for _ in range(max(indices) + 1)])
+        else:
+            [state.next() for _ in range(max(indices) + 1)] # Skip leaks
         if args.next > 0:
-            [state.next() for _ in data] # Skip known values
+        # Show --next values
             print(f'Predicted next {args.next} values:',
                     [format_random(state.next(), args) for _ in range(args.next)])
         print()
