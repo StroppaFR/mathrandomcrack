@@ -10,21 +10,20 @@ def v8_to_double(state0):
     """
     Convert a 64-bit integer state0 from xs128 to a double output.
     The result is between 0.0 and 1.0.
-    The 12 least significant bits of state0 are lost during conversion.
+    The 11 least significant bits of state0 are lost during conversion.
 
-    See also: https://github.com/v8/v8/blob/12.5.66/src/base/utils/random-number-generator.h#L111
+    See also: https://github.com/v8/v8/blob/14.3.21/src/base/utils/random-number-generator.h#L111
     """
-    r = (state0 >> 12) | 0x3ff0000000000000
-    return struct.unpack('d', struct.pack('<Q', r))[0] - 1
+    random_0_to_2_53 = state0 >> 11
+    return random_0_to_2_53 / (1 << 53)
 
 def v8_from_double(double):
     """
     Convert a double back to a 64-bit integer.
-    The 12 least significant bits of the result cannot be recovered.
+    The 11 least significant bits of the result cannot be recovered.
     """
-    if double == 1.0:
-        return 0xffffffffffffffff
-    return (struct.unpack('<Q', struct.pack('d', double + 1.0))[0] & 0xfffffffffffff) << 12
+    random_0_to_2_53 = int(double * (1 << 53))
+    return random_0_to_2_53 << 11
 
 def int64_to_bits(val):
     """

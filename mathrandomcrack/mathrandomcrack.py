@@ -69,8 +69,8 @@ def recover_state_from_math_random_doubles(doubles, positions=None):
     # Convert doubles to known bits
     known_bits = []
     for double in doubles:
-        # V8 double conversion loses 12 bits of information
-        known_bits.append([None for _ in range(12)] + int64_to_bits(v8_from_double(double))[12:HALF_STATE_SIZE])
+        # V8 double conversion loses 11 bits of information
+        known_bits.append([None for _ in range(11)] + int64_to_bits(v8_from_double(double))[11:HALF_STATE_SIZE])
     # Recover possible states from known bits
     for math_random in recover_state_from_math_random_known_bits(known_bits, positions):
         yield math_random

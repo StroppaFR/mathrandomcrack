@@ -8,7 +8,7 @@ def xs128(state0, state1):
     Arguments:
         state0, state1: integers or objects that can represent 64-bit integers.
     
-    See also: https://github.com/v8/v8/blob/12.5.66/src/base/utils/random-number-generator.h#L119
+    See also: https://github.com/v8/v8/blob/14.3.21/src/base/utils/random-number-generator.h#L121
     """
     mask = (1 << HALF_STATE_SIZE) - 1
     s1 = state0 & mask

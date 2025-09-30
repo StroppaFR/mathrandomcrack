@@ -53,7 +53,7 @@ You can also try to use `recover_seed_from_known_bits` in `xs128crack.py` if you
 
 ## How does it work?
 
-`Math.random()` is defined as a function that returns pseudo-random numbers between 0 and 1 and does not provide cryptographically secure random numbers. Under the hood, in V8 (the JavaScript engine used by Chrome and NodeJS), random numbers are generated using the fast, reversible, seed-based, deterministic PRNG called [XorShift128](https://github.com/v8/v8/blob/12.5.66/src/base/utils/random-number-generator.h#L119).
+`Math.random()` is defined as a function that returns pseudo-random numbers between 0 and 1 and does not provide cryptographically secure random numbers. Under the hood, in V8 (the JavaScript engine used by Chrome and NodeJS), random numbers are generated using the fast, reversible, seed-based, deterministic PRNG called [XorShift128](https://github.com/v8/v8/blob/14.3.21/src/base/utils/random-number-generator.h#L121).
 
 ### Cracking XorShift128 initial state
 
@@ -65,7 +65,7 @@ Initial XorShift128 state recovery from known bits is implemented in `xs128crack
 
 ### Recovering Math.random() internal state
 
-`Math.random()` doesn't directly output XorShift128 random values. It generates [a cache](https://github.com/v8/v8/blob/12.5.66/src/numbers/math-random.cc#L35) of 64 values at a time and returns them one by one in reverse order. This makes the internal state recovery a little tricky because we have to account for the initial position of the cache index for the first known state. If only a few outputs are known (< 64), there will be up to 64 possible internal states due to the unknown position of the cache index.
+`Math.random()` doesn't directly output XorShift128 random values. It generates [a cache](https://github.com/v8/v8/blob/14.3.21/src/numbers/math-random.cc#L35) of 64 values at a time and returns them one by one in reverse order. This makes the internal state recovery a little tricky because we have to account for the initial position of the cache index for the first known state. If only a few outputs are known (< 64), there will be up to 64 possible internal states due to the unknown position of the cache index.
 
 Internal state recovery is implemented in `mathrandomcrack.py`.
 
