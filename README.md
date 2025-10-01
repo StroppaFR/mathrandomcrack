@@ -32,7 +32,7 @@ Example usages:
 $ # Generate the 10 next values from known consecutive outputs of Math.random()
 $ python3 -m mathrandomcrack --method doubles --next 10 ./samples/doubles.txt
 Found a possible Math.random internal state
-Predicted next 10 values: [0.5597931536361638, 0.39832831643974864, 0.0940979656897567, 0.3892245433709369, 0.4181995469805899, 0.8956732665570508, 0.48855506783775837, 0.2101572368259732, 0.08530537646511771, 0.29348914847700214]
+Predicted next 10 values: [0.3826651187438035, 0.7375710819016986, 0.21863364189462264, 0.8093784172561101, 0.6964292873208223, 0.6272218068697356, 0.6100738714256938, 0.25258737620214433, 0.3696190724647912, 0.5292798994490209]
 
 $ # Generate the 5 previous and 5 next integers from known consecutive values of Math.floor(Math.random() * 36)
 $ python3 -m mathrandomcrack --method scaled --next 5 --previous 5 --factor 36 --output-fmt scaled ./samples/scaled_values.txt
