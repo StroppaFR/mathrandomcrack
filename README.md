@@ -6,6 +6,12 @@ This is largely inspired by https://imp.ress.me/blog/2023-04-17/plaidctf-2023#fa
 
 *Disclaimer: This tool is made for educational purposes only. Please don't use it to break into stuff.*
 
+## Archived tool
+
+This tool is now archived and will no longer receive updates. V8 implementation of `Math.random()` was updated with [this commit](https://github.com/v8/v8/commit/0596ead5b04f5988d7742c2a4559637a4f81b849). It changes the internal PRNG from XorShift128 to the nonlinear XorShift128+, effectively breaking the attack implemented here.
+
+Note that seed-recovery attacks based on symbolic execution and SMT solvers should still work with minor tweaks.
+
 ## What is this?
 
 This tool can be used to recover the internal state of the V8 implementation of `Math.random()` knowing enough bits of randomly generated values. The values don't have to be successive and the position of the known bits can vary.
